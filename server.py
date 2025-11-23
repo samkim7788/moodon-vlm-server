@@ -54,16 +54,18 @@ def analyze(img: Image.Image):
 
 
 def handler(event):
-    b64 = event.get("image")
+    # event["input"] 도 지원하고, 혹시 그냥 바로 넘긴 것도 지원
+    data = event.get("input", event)
+
+    b64 = data.get("image")
     if not b64:
         return {"error": "no image"}
 
     try:
         image = Image.open(BytesIO(base64.b64decode(b64))).convert("RGB")
-    except:
-        return {"error": "invalid image"}
+    except Exception as e:
+        return {"error": f"invalid image: {e}"}
 
     return analyze(image)
-
 
 runpod.serverless.start({"handler": handler})
